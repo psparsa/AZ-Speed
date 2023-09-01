@@ -138,7 +138,7 @@ function App() {
         handleBackspace
       );
     };
-  }, [activeLetter, isRunning, start]);
+  }, [activeLetter, isRunning, status, start, pause]);
 
   return (
     <main className={styles.MainContainer}>
@@ -164,7 +164,12 @@ function App() {
       </div>
       {status === 'finished' ? (
         <div className={styles.Mistakes}>
-          <p>Mistakes: {mistakes}</p>
+          {mistakes === 0 ? (
+            <p className={styles.Perfect}>Perfect</p>
+          ) : (
+            <p>Mistakes: {mistakes}</p>
+          )}
+
           <img
             src={RestartImage}
             alt="reset"

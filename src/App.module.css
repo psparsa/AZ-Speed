@@ -28,6 +28,10 @@
   text-align: center;
 }
 
+.Perfect {
+  color: var(--perfect);
+}
+
 .Timer {
   width: 100%;
   color: var(--stopwatch);

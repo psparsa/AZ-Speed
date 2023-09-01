@@ -5,6 +5,7 @@
   --error-letter: rgba(255, 88, 88, 0.702);
   --stopwatch: rgb(245, 245, 245);
   --mistakes: rgb(250, 78, 78);
+  --perfect: rgba(0, 255, 0, 0.8);
 }
 
 * {
