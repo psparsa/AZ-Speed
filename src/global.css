@@ -6,6 +6,7 @@
   --stopwatch: rgb(245, 245, 245);
   --mistakes: #ff7171;
   --perfect: #86f280;
+  --result: #e4e4e4;
 }
 
 * {

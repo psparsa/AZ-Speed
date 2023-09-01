@@ -64,6 +64,7 @@ function App() {
 
     const handleKeyboard = (event: KeyboardEvent) => {
       if (status === 'finished') return;
+
       const pressedKey = event.key;
 
       if (isLetter(event)) {
@@ -106,6 +107,8 @@ function App() {
 
     const handleBackspace = (event: KeyboardEvent) => {
       if (status === 'finished') return;
+      if (activeLetter === 'a') return;
+
       if (isBackspace(event)) {
         setStep((p) => p - 1);
         setItems((p) =>
@@ -160,26 +163,31 @@ function App() {
 
   return (
     <main className={styles.MainContainer}>
-      <div className={styles.LettersOuterContainer}>
-        <div
-          className={styles.LettersInnerContainer}
-          style={{
-            transform: `translate(calc(50vw - 4rem - ${
-              step * 9
-            }rem))`,
-          }}
-        >
-          {items.map((letterItem) => (
-            <Letter
-              key={letterItem.value}
-              letter={letterItem.value}
-              active={letterItem.value === activeLetter}
-              correct={letterItem.status === 'correct'}
-              error={letterItem.status === 'error'}
-            />
-          ))}
+      {status === 'finished' ? (
+        <div className={styles.Result}>{formattedTime}</div>
+      ) : (
+        <div className={styles.LettersOuterContainer}>
+          <div
+            className={styles.LettersInnerContainer}
+            style={{
+              transform: `translate(calc(50vw - 4rem - ${
+                step * 9
+              }rem))`,
+            }}
+          >
+            {items.map((letterItem) => (
+              <Letter
+                key={letterItem.value}
+                letter={letterItem.value}
+                active={letterItem.value === activeLetter}
+                correct={letterItem.status === 'correct'}
+                error={letterItem.status === 'error'}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
       {status === 'finished' ? (
         <div className={styles.Mistakes}>
           {mistakes === 0 ? (

@@ -4,8 +4,14 @@
   background-color: var(--background);
   display: flex;
   flex-direction: column;
-  /* align-items: center; */
   justify-content: center;
+}
+
+.Result {
+  width: 100%;
+  text-align: center;
+  font-size: 9em;
+  color: var(--result);
 }
 
 .LettersOuterContainer {
