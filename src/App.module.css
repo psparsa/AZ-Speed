@@ -3,13 +3,27 @@
   min-height: 100vh;
   background-color: var(--background);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: center;
 }
 
-.LettersContainer {
+.LettersOuterContainer {
+  display: flex;
+  width: 100%;
+}
+
+.LettersInnerContainer {
   display: flex;
   gap: 1rem;
 
   position: relative;
   transition: transform ease-in-out 0.3s;
+}
+
+.Timer {
+  font-size: 4rem;
+  color: whitesmoke;
+  width: 100%;
+  text-align: center;
 }

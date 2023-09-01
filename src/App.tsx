@@ -5,6 +5,7 @@ import { isLetter } from './utils/isLetter';
 import { letters } from './constants/letters';
 import { isBackspace } from './utils/isBackspace';
 import { ElementType } from './utils/ElementType';
+import { useStopwatch } from 'react-timer-hook';
 
 type LetterItem = {
   value: ElementType<typeof letters>;
@@ -22,12 +23,28 @@ function App() {
   const [activeLetter, setActiveLetter] =
     React.useState('a');
   const [mistakes, setMistakes] = React.useState(0);
+  const [status, setStatus] = React.useState<
+    'idle' | 'typing' | 'finished'
+  >('idle');
+
+  const { start, pause, isRunning, seconds, minutes } =
+    useStopwatch();
+
+  const formattedTime = `${
+    minutes < 10 ? `0${minutes}` : minutes
+  }:${seconds < 10 ? `0${seconds}` : seconds} `;
 
   React.useEffect(() => {
+    const begin = () => {
+      setStatus('typing');
+      if (!isRunning) start();
+    };
+
     const handleKeyboard = (event: KeyboardEvent) => {
       const pressedKey = event.key;
 
-      if (isLetter(event))
+      if (isLetter(event)) {
+        begin();
         if (pressedKey === activeLetter) {
           setStep((p) => p + 1);
           setActiveLetter((p) =>
@@ -57,6 +74,7 @@ function App() {
             )
           );
         }
+      }
     };
 
     const handleBackspace = (event: KeyboardEvent) => {
@@ -92,28 +110,31 @@ function App() {
         handleBackspace
       );
     };
-  }, [activeLetter]);
+  }, [activeLetter, isRunning, start]);
 
   return (
     <main className={styles.MainContainer}>
-      <div
-        className={styles.LettersContainer}
-        style={{
-          transform: `translate(calc(50vw - 4rem - ${
-            step * 9
-          }rem))`,
-        }}
-      >
-        {items.map((letterItem) => (
-          <Letter
-            key={letterItem.value}
-            letter={letterItem.value}
-            active={letterItem.value === activeLetter}
-            correct={letterItem.status === 'correct'}
-            error={letterItem.status === 'error'}
-          />
-        ))}
+      <div className={styles.LettersOuterContainer}>
+        <div
+          className={styles.LettersInnerContainer}
+          style={{
+            transform: `translate(calc(50vw - 4rem - ${
+              step * 9
+            }rem))`,
+          }}
+        >
+          {items.map((letterItem) => (
+            <Letter
+              key={letterItem.value}
+              letter={letterItem.value}
+              active={letterItem.value === activeLetter}
+              correct={letterItem.status === 'correct'}
+              error={letterItem.status === 'error'}
+            />
+          ))}
+        </div>
       </div>
+      <div className={styles.Timer}>{formattedTime}</div>
     </main>
   );
 }
