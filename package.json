@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/howler": "2.2.8",
+    "howler": "2.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-timer-hook": "3.0.7"

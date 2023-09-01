@@ -8,6 +8,7 @@ import { ElementType } from './utils/ElementType';
 import { useStopwatch } from 'react-timer-hook';
 import PlayImage from './assets/play.svg';
 import RestartImage from './assets/restart.svg';
+import { SFX } from './utils/SFX';
 
 type Letter = ElementType<typeof letters>;
 
@@ -121,6 +122,7 @@ function App() {
   } = useStopwatch();
 
   const restart = () => {
+    SFX.restart.play();
     dispatch({ type: 'reset' });
     resetStopwatch(undefined, false);
   };
@@ -146,6 +148,7 @@ function App() {
 
         if (pressedKey === state.activeLetter) {
           // a correct key pressed
+          SFX.click.play();
           dispatch({
             type: 'set-letter-status',
             payload: {
@@ -158,6 +161,7 @@ function App() {
           else dispatch({ type: 'next-letter' });
         } else {
           // a wrong key pressed
+          SFX.wrong.play();
           dispatch({ type: 'increase-mistakes' });
           dispatch({
             type: 'set-letter-status',
@@ -175,6 +179,7 @@ function App() {
       if (state.activeLetter === 'a') return;
 
       if (isBackspace(event)) {
+        SFX.backspace.play();
         dispatch({ type: 'previous-letter' });
 
         dispatch({
