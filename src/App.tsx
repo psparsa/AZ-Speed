@@ -65,7 +65,7 @@ function App() {
     const handleKeyboard = (event: KeyboardEvent) => {
       if (status === 'finished') return;
 
-      const pressedKey = event.key;
+      const pressedKey = event.key.toLowerCase();
 
       if (isLetter(event)) {
         begin();
