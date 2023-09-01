@@ -140,6 +140,24 @@ function App() {
     };
   }, [activeLetter, isRunning, status, start, pause]);
 
+  const actionButtons = {
+    reset: (
+      <img
+        src={RestartImage}
+        alt="reset"
+        className={`${styles.ActionButton} ${styles.ResetButton}`}
+        onClick={restart}
+      />
+    ),
+    play: (
+      <img
+        src={PlayImage}
+        alt="play"
+        className={styles.ActionButton}
+      />
+    ),
+  };
+
   return (
     <main className={styles.MainContainer}>
       <div className={styles.LettersOuterContainer}>
@@ -170,23 +188,13 @@ function App() {
             <p>Mistakes: {mistakes}</p>
           )}
 
-          <img
-            src={RestartImage}
-            alt="reset"
-            className={`${styles.ActionButton} ${styles.ResetButton}`}
-            onClick={restart}
-          />
+          {actionButtons.reset}
         </div>
       ) : (
         <div className={styles.Timer}>
           <p>{formattedTime}</p>
-          {status === 'idle' && (
-            <img
-              src={PlayImage}
-              alt="play"
-              className={styles.ActionButton}
-            />
-          )}
+          {status === 'idle' && actionButtons.play}
+          {status === 'typing' && actionButtons.reset}
         </div>
       )}
     </main>
