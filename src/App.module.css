@@ -19,6 +19,21 @@
   width: 100%;
 }
 
+.LettersOuterContainer::before {
+  content: '';
+  position: absolute;
+  width: 100vw;
+  height: 8rem;
+  z-index: 1;
+  background: rgb(16, 19, 28);
+  background: linear-gradient(
+    90deg,
+    var(--background) 0%,
+    rgba(255, 255, 255, 0) 50%,
+    var(--background) 100%
+  );
+}
+
 .LettersInnerContainer {
   display: flex;
   gap: 1rem;
