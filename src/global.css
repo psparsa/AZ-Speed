@@ -1,0 +1,23 @@
+:root {
+  --background: rgb(35, 36, 47);
+  --idle-letter: rgb(255, 255, 255);
+  --correct-letter: rgba(1, 182, 1, 0.7);
+  --error-letter: rgba(255, 88, 88, 0.702);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Vazirmatn';
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

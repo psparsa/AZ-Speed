@@ -1,0 +1,23 @@
+.Letter {
+  font-size: 9rem;
+  user-select: none;
+  font-weight: 600;
+  color: var(--idle-letter);
+
+  text-align: center;
+  display: inline-block;
+  width: 8rem;
+  opacity: 0.3;
+}
+
+.Letter_Active {
+  opacity: 1;
+}
+
+.Letter_Error {
+  color: var(--error-letter);
+}
+
+.Letter_Correct {
+  color: var(--correct-letter);
+}

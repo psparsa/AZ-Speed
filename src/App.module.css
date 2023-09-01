@@ -1,0 +1,15 @@
+.MainContainer {
+  width: 100vw;
+  min-height: 100vh;
+  background-color: var(--background);
+  display: flex;
+  align-items: center;
+}
+
+.LettersContainer {
+  display: flex;
+  gap: 1rem;
+
+  position: relative;
+  transition: transform ease-in-out 0.3s;
+}
