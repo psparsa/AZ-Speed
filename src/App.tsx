@@ -27,8 +27,14 @@ function App() {
     'idle' | 'typing' | 'finished'
   >('idle');
 
-  const { start, pause, isRunning, seconds, minutes } =
-    useStopwatch();
+  const {
+    start,
+    pause,
+    reset,
+    isRunning,
+    seconds,
+    minutes,
+  } = useStopwatch();
 
   const formattedTime = `${
     minutes < 10 ? `0${minutes}` : minutes
@@ -40,17 +46,18 @@ function App() {
       if (!isRunning) start();
     };
 
+    const finish = () => {
+      setStatus('finished');
+      pause();
+    };
+
     const handleKeyboard = (event: KeyboardEvent) => {
+      if (status === 'finished') return;
       const pressedKey = event.key;
 
       if (isLetter(event)) {
         begin();
         if (pressedKey === activeLetter) {
-          setStep((p) => p + 1);
-          setActiveLetter((p) =>
-            String.fromCharCode(p.charCodeAt(0) + 1)
-          );
-
           setItems((p) =>
             p.map((value) =>
               value.value === pressedKey
@@ -61,6 +68,15 @@ function App() {
                 : value
             )
           );
+
+          if (pressedKey === 'z') {
+            finish();
+          } else {
+            setStep((p) => p + 1);
+            setActiveLetter((p) =>
+              String.fromCharCode(p.charCodeAt(0) + 1)
+            );
+          }
         } else {
           setMistakes((p) => p + 1);
           setItems((p) =>
@@ -78,6 +94,7 @@ function App() {
     };
 
     const handleBackspace = (event: KeyboardEvent) => {
+      if (status === 'finished') return;
       if (isBackspace(event)) {
         setStep((p) => p - 1);
         setItems((p) =>
@@ -134,7 +151,13 @@ function App() {
           ))}
         </div>
       </div>
-      <div className={styles.Timer}>{formattedTime}</div>
+      {status === 'finished' ? (
+        <div className={styles.Mistakes}>
+          Mistakes: {mistakes}
+        </div>
+      ) : (
+        <div className={styles.Timer}>{formattedTime}</div>
+      )}
     </main>
   );
 }

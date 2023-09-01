@@ -21,9 +21,16 @@
   transition: transform ease-in-out 0.3s;
 }
 
-.Timer {
-  font-size: 4rem;
-  color: whitesmoke;
+.Mistakes {
   width: 100%;
+  color: var(--mistakes);
+  font-size: 3rem;
+  text-align: center;
+}
+
+.Timer {
+  width: 100%;
+  color: var(--stopwatch);
+  font-size: 4rem;
   text-align: center;
 }

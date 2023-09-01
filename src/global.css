@@ -3,6 +3,8 @@
   --idle-letter: rgb(255, 255, 255);
   --correct-letter: rgba(1, 182, 1, 0.7);
   --error-letter: rgba(255, 88, 88, 0.702);
+  --stopwatch: rgb(245, 245, 245);
+  --mistakes: rgb(250, 78, 78);
 }
 
 * {
