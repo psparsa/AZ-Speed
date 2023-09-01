@@ -9,15 +9,17 @@ import { useStopwatch } from 'react-timer-hook';
 import PlayImage from './assets/play.svg';
 import RestartImage from './assets/restart.svg';
 
+type Letter = ElementType<typeof letters>;
+
 type LetterItem = {
-  value: ElementType<typeof letters>;
+  letter: Letter;
   status: 'correct' | 'error' | 'idle';
 };
 
 type State = {
   status: 'idle' | 'typing' | 'finished';
   mistakes: number;
-  activeLetter: string;
+  activeLetter: Letter;
   step: number;
   items: LetterItem[];
 };
@@ -35,10 +37,7 @@ type Action =
   | { type: 'previous-letter' }
   | {
       type: 'set-letter-status';
-      payload: {
-        letter: string;
-        status: LetterItem['status'];
-      };
+      payload: LetterItem;
     };
 
 const reducer = (state: State, action: Action): State => {
@@ -66,7 +65,7 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         activeLetter: String.fromCharCode(
           state.activeLetter.charCodeAt(0) + 1
-        ),
+        ) as Letter,
         step: currentLetterIdx + 1,
       };
 
@@ -75,7 +74,7 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         activeLetter: String.fromCharCode(
           state.activeLetter.charCodeAt(0) - 1
-        ),
+        ) as Letter,
         step: currentLetterIdx - 1,
       };
     }
@@ -84,7 +83,7 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         items: state.items.map((value) =>
-          value.value === action.payload.letter
+          value.letter === action.payload.letter
             ? {
                 ...value,
                 status: action.payload.status,
@@ -101,7 +100,7 @@ const initialState: State = {
   activeLetter: 'a',
   step: 0,
   items: letters.map((char) => ({
-    value: char,
+    letter: char,
     status: 'idle',
   })),
 };
@@ -120,16 +119,6 @@ function App() {
     seconds: stopwatchSeconds,
     minutes: stopwatchmMinutes,
   } = useStopwatch();
-
-  const formattedTime = `${
-    stopwatchmMinutes < 10
-      ? `0${stopwatchmMinutes}`
-      : stopwatchmMinutes
-  }:${
-    stopwatchSeconds < 10
-      ? `0${stopwatchSeconds}`
-      : stopwatchSeconds
-  } `;
 
   const restart = () => {
     dispatch({ type: 'reset' });
@@ -154,11 +143,13 @@ function App() {
 
       if (isLetter(event)) {
         begin();
+
         if (pressedKey === state.activeLetter) {
+          // a correct key pressed
           dispatch({
             type: 'set-letter-status',
             payload: {
-              letter: pressedKey,
+              letter: pressedKey as Letter,
               status: 'correct',
             },
           });
@@ -166,6 +157,7 @@ function App() {
           if (pressedKey === 'z') finish();
           else dispatch({ type: 'next-letter' });
         } else {
+          // a wrong key pressed
           dispatch({ type: 'increase-mistakes' });
           dispatch({
             type: 'set-letter-status',
@@ -211,8 +203,8 @@ function App() {
     };
   }, [
     state.activeLetter,
-    isStopwatchRunning,
     state.status,
+    isStopwatchRunning,
     startStopwatch,
     pauseStopwatch,
   ]);
@@ -235,6 +227,16 @@ function App() {
     ),
   };
 
+  const formattedTime = `${
+    stopwatchmMinutes < 10
+      ? `0${stopwatchmMinutes}`
+      : stopwatchmMinutes
+  }:${
+    stopwatchSeconds < 10
+      ? `0${stopwatchSeconds}`
+      : stopwatchSeconds
+  } `;
+
   return (
     <main className={styles.MainContainer}>
       {state.status === 'finished' ? (
@@ -251,10 +253,10 @@ function App() {
           >
             {state.items.map((letterItem) => (
               <Letter
-                key={letterItem.value}
-                letter={letterItem.value}
+                key={letterItem.letter}
+                letter={letterItem.letter}
                 active={
-                  letterItem.value === state.activeLetter
+                  letterItem.letter === state.activeLetter
                 }
                 correct={letterItem.status === 'correct'}
                 error={letterItem.status === 'error'}
