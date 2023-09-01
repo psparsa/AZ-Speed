@@ -6,6 +6,8 @@ import { letters } from './constants/letters';
 import { isBackspace } from './utils/isBackspace';
 import { ElementType } from './utils/ElementType';
 import { useStopwatch } from 'react-timer-hook';
+import PlayImage from './assets/play.svg';
+import RestartImage from './assets/restart.svg';
 
 type LetterItem = {
   value: ElementType<typeof letters>;
@@ -39,6 +41,15 @@ function App() {
   const formattedTime = `${
     minutes < 10 ? `0${minutes}` : minutes
   }:${seconds < 10 ? `0${seconds}` : seconds} `;
+
+  const restart = () => {
+    setStatus('idle');
+    reset(undefined, false);
+    setItems(initialState);
+    setStep(0);
+    setActiveLetter('a');
+    setMistakes(0);
+  };
 
   React.useEffect(() => {
     const begin = () => {
@@ -153,10 +164,25 @@ function App() {
       </div>
       {status === 'finished' ? (
         <div className={styles.Mistakes}>
-          Mistakes: {mistakes}
+          <p>Mistakes: {mistakes}</p>
+          <img
+            src={RestartImage}
+            alt="reset"
+            className={`${styles.ActionButton} ${styles.ResetButton}`}
+            onClick={restart}
+          />
         </div>
       ) : (
-        <div className={styles.Timer}>{formattedTime}</div>
+        <div className={styles.Timer}>
+          <p>{formattedTime}</p>
+          {status === 'idle' && (
+            <img
+              src={PlayImage}
+              alt="play"
+              className={styles.ActionButton}
+            />
+          )}
+        </div>
       )}
     </main>
   );

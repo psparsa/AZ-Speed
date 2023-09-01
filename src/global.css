@@ -10,6 +10,7 @@
 * {
   box-sizing: border-box;
   font-family: 'Vazirmatn';
+  user-select: none;
 }
 
 html,
@@ -22,4 +23,8 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+p {
+  margin: 0;
 }
