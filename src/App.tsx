@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useReducer } from 'react';
 import styles from './App.module.css';
 import { Letter } from './components/Letter';
 import { isLetter } from './utils/isLetter';
@@ -14,116 +14,184 @@ type LetterItem = {
   status: 'correct' | 'error' | 'idle';
 };
 
-const initialState: LetterItem[] = letters.map((char) => ({
-  value: char,
+type State = {
+  status: 'idle' | 'typing' | 'finished';
+  mistakes: number;
+  activeLetter: string;
+  step: number;
+  items: LetterItem[];
+};
+
+type Action =
+  | { type: 'reset' }
+  | {
+      type: 'set-status';
+      payload: State['status'];
+    }
+  | {
+      type: 'increase-mistakes';
+    }
+  | { type: 'next-letter' }
+  | { type: 'previous-letter' }
+  | {
+      type: 'set-letter-status';
+      payload: {
+        letter: string;
+        status: LetterItem['status'];
+      };
+    };
+
+const reducer = (state: State, action: Action): State => {
+  const currentLetterIdx = letters.findIndex(
+    (letter) => letter === state.activeLetter
+  );
+
+  switch (action.type) {
+    case 'reset':
+      return initialState;
+    case 'set-status':
+      return {
+        ...state,
+        status: action.payload,
+      };
+
+    case 'increase-mistakes':
+      return {
+        ...state,
+        mistakes: state.mistakes + 1,
+      };
+
+    case 'next-letter':
+      return {
+        ...state,
+        activeLetter: String.fromCharCode(
+          state.activeLetter.charCodeAt(0) + 1
+        ),
+        step: currentLetterIdx + 1,
+      };
+
+    case 'previous-letter': {
+      return {
+        ...state,
+        activeLetter: String.fromCharCode(
+          state.activeLetter.charCodeAt(0) - 1
+        ),
+        step: currentLetterIdx - 1,
+      };
+    }
+
+    case 'set-letter-status':
+      return {
+        ...state,
+        items: state.items.map((value) =>
+          value.value === action.payload.letter
+            ? {
+                ...value,
+                status: action.payload.status,
+              }
+            : value
+        ),
+      };
+  }
+};
+
+const initialState: State = {
   status: 'idle',
-}));
+  mistakes: 0,
+  activeLetter: 'a',
+  step: 0,
+  items: letters.map((char) => ({
+    value: char,
+    status: 'idle',
+  })),
+};
 
 function App() {
-  const [items, setItems] = React.useState(initialState);
-  const [step, setStep] = React.useState(0);
-  const [activeLetter, setActiveLetter] =
-    React.useState('a');
-  const [mistakes, setMistakes] = React.useState(0);
-  const [status, setStatus] = React.useState<
-    'idle' | 'typing' | 'finished'
-  >('idle');
+  const [state, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
 
   const {
-    start,
-    pause,
-    reset,
-    isRunning,
-    seconds,
-    minutes,
+    start: startStopwatch,
+    pause: pauseStopwatch,
+    reset: resetStopwatch,
+    isRunning: isStopwatchRunning,
+    seconds: stopwatchSeconds,
+    minutes: stopwatchmMinutes,
   } = useStopwatch();
 
   const formattedTime = `${
-    minutes < 10 ? `0${minutes}` : minutes
-  }:${seconds < 10 ? `0${seconds}` : seconds} `;
+    stopwatchmMinutes < 10
+      ? `0${stopwatchmMinutes}`
+      : stopwatchmMinutes
+  }:${
+    stopwatchSeconds < 10
+      ? `0${stopwatchSeconds}`
+      : stopwatchSeconds
+  } `;
 
   const restart = () => {
-    setStatus('idle');
-    reset(undefined, false);
-    setItems(initialState);
-    setStep(0);
-    setActiveLetter('a');
-    setMistakes(0);
+    dispatch({ type: 'reset' });
+    resetStopwatch(undefined, false);
   };
 
   React.useEffect(() => {
     const begin = () => {
-      setStatus('typing');
-      if (!isRunning) start();
+      dispatch({ type: 'set-status', payload: 'typing' });
+      if (!isStopwatchRunning) startStopwatch();
     };
 
     const finish = () => {
-      setStatus('finished');
-      pause();
+      dispatch({ type: 'set-status', payload: 'finished' });
+      pauseStopwatch();
     };
 
     const handleKeyboard = (event: KeyboardEvent) => {
-      if (status === 'finished') return;
+      if (state.status === 'finished') return;
 
       const pressedKey = event.key.toLowerCase();
 
       if (isLetter(event)) {
         begin();
-        if (pressedKey === activeLetter) {
-          setItems((p) =>
-            p.map((value) =>
-              value.value === pressedKey
-                ? {
-                    ...value,
-                    status: 'correct',
-                  }
-                : value
-            )
-          );
+        if (pressedKey === state.activeLetter) {
+          dispatch({
+            type: 'set-letter-status',
+            payload: {
+              letter: pressedKey,
+              status: 'correct',
+            },
+          });
 
-          if (pressedKey === 'z') {
-            finish();
-          } else {
-            setStep((p) => p + 1);
-            setActiveLetter((p) =>
-              String.fromCharCode(p.charCodeAt(0) + 1)
-            );
-          }
+          if (pressedKey === 'z') finish();
+          else dispatch({ type: 'next-letter' });
         } else {
-          setMistakes((p) => p + 1);
-          setItems((p) =>
-            p.map((value) =>
-              value.value === activeLetter
-                ? {
-                    ...value,
-                    status: 'error',
-                  }
-                : value
-            )
-          );
+          dispatch({ type: 'increase-mistakes' });
+          dispatch({
+            type: 'set-letter-status',
+            payload: {
+              letter: state.activeLetter,
+              status: 'error',
+            },
+          });
         }
       }
     };
 
     const handleBackspace = (event: KeyboardEvent) => {
-      if (status === 'finished') return;
-      if (activeLetter === 'a') return;
+      if (state.status === 'finished') return;
+      if (state.activeLetter === 'a') return;
 
       if (isBackspace(event)) {
-        setStep((p) => p - 1);
-        setItems((p) =>
-          p.map((value) =>
-            value.value === activeLetter
-              ? {
-                  ...value,
-                  status: 'idle',
-                }
-              : value
-          )
-        );
-        setActiveLetter((p) =>
-          String.fromCharCode(p.charCodeAt(0) - 1)
-        );
+        dispatch({ type: 'previous-letter' });
+
+        dispatch({
+          type: 'set-letter-status',
+          payload: {
+            letter: state.activeLetter,
+            status: 'idle',
+          },
+        });
       }
     };
 
@@ -141,7 +209,13 @@ function App() {
         handleBackspace
       );
     };
-  }, [activeLetter, isRunning, status, start, pause]);
+  }, [
+    state.activeLetter,
+    isStopwatchRunning,
+    state.status,
+    startStopwatch,
+    pauseStopwatch,
+  ]);
 
   const actionButtons = {
     reset: (
@@ -163,7 +237,7 @@ function App() {
 
   return (
     <main className={styles.MainContainer}>
-      {status === 'finished' ? (
+      {state.status === 'finished' ? (
         <div className={styles.Result}>{formattedTime}</div>
       ) : (
         <div className={styles.LettersOuterContainer}>
@@ -171,15 +245,17 @@ function App() {
             className={styles.LettersInnerContainer}
             style={{
               transform: `translate(calc(50vw - 4rem - ${
-                step * 9
+                state.step * 9
               }rem))`,
             }}
           >
-            {items.map((letterItem) => (
+            {state.items.map((letterItem) => (
               <Letter
                 key={letterItem.value}
                 letter={letterItem.value}
-                active={letterItem.value === activeLetter}
+                active={
+                  letterItem.value === state.activeLetter
+                }
                 correct={letterItem.status === 'correct'}
                 error={letterItem.status === 'error'}
               />
@@ -188,12 +264,12 @@ function App() {
         </div>
       )}
 
-      {status === 'finished' ? (
+      {state.status === 'finished' ? (
         <div className={styles.Mistakes}>
-          {mistakes === 0 ? (
+          {state.mistakes === 0 ? (
             <p className={styles.Perfect}>Perfect</p>
           ) : (
-            <p>Mistakes: {mistakes}</p>
+            <p>Mistakes: {state.mistakes}</p>
           )}
 
           {actionButtons.reset}
@@ -201,8 +277,8 @@ function App() {
       ) : (
         <div className={styles.Timer}>
           <p>{formattedTime}</p>
-          {status === 'idle' && actionButtons.play}
-          {status === 'typing' && actionButtons.reset}
+          {state.status === 'idle' && actionButtons.play}
+          {state.status === 'typing' && actionButtons.reset}
         </div>
       )}
     </main>
