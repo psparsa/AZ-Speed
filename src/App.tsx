@@ -121,6 +121,12 @@ function App() {
           <p>{formattedTime}</p>
           {state.status === 'idle' && actionButtons.play}
           {state.status === 'typing' && actionButtons.reset}
+
+          <p className={styles.Hint}>
+            {state.status === 'idle'
+              ? 'Press any key to start...  '
+              : '‎ ‎ '}
+          </p>
         </div>
       )}
     </main>
